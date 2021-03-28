@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Parcel Sandbox</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://kit.fontawesome.com/74a0e34067.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous" />
+    <link rel="stylesheet" href="src/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <title>Weather App</title>
+
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica,
+                Arial, sans-serif, Inv Maison Neue, Apple Color Emoji, Segoe UI Emoji,
+                Segoe UI Symbol;
+            font-weight: 400;
+            color: #4a4a4a;
+            margin: 60px auto;
+        }
+
+        .weather-app-wrapper {
+            max-width: 650px;
+            margin: 30 auto;
+        }
+
+        .weather-app {
+            max-width: 650px;
+            margin: 30 auto;
+            padding: 20px;
+            border: 1px solid #aaa9ad;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .weather-app::before {
+            content: "";
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            position: absolute;
+            background-image: url("https://images.unsplash.com/photo-1566321343730-237ec35e53f3?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=2089&q=80");
+            background-position: 70% 30%;
+            background-attachment: fixed;
+            background-size: cover;
+            border-radius: 10px;
+            opacity: 0.7;
+        }
+
+        .form-control {
+            position: relative;
+        }
+
+        .form-control:focus {
+            position: relative;
+            border: 1px solid #c0c4c3;
+            box-shadow: 0 0 10px #a2a4a5;
+            border-radius: 3px;
+        }
+
+        .search {
+            position: relative;
+            padding: 5px 10px 5px;
+            background-color: #22c8e5;
+            border: 1px solid #04acca;
+            border-radius: 3px;
+            transition: all 300ms ease-in-out;
+        }
+
+        .search:hover {
+            position: relative;
+            border: 1px solid #00bcd4;
+            background-color: #03a9f4;
+            box-shadow: 0 0 5px #c0edea;
+            border-radius: 3px;
+            cursor: default;
+        }
+
+        .weather-icon-main {
+            position: relative;
+            width: 80px;
+            display: block;
+            margin: -14px 0 auto 10px;
+        }
+
+        .city-and-country,
+        .date,
+        .time {
+            position: relative;
+            text-align: right;
+            font-weight: 300;
+            color: #1b1b1b;
+            margin-left: 0;
+        }
+
+        .city-and-country {
+            position: relative;
+            text-transform: capitalize;
+        }
+
+        .degree-views {
+            position: relative;
+            margin-top: 5px;
+            margin-left: 5px;
+            display: inline-block;
+            text-align: right;
+        }
+
+        .fahrenheit,
+        .celsius {
+            position: relative;
+            color: #555555;
+            text-decoration: none;
+            cursor: default;
+        }
+
+        .fahrenheit:hover,
+        .celsius:hover {
+            position: relative;
+            text-decoration: none;
+        }
+
+        .degree-views .active {
+            position: relative;
+            color: black;
+            opacity: 0.8;
+            cursor: default;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .degree-views .active:hover {
+            position: relative;
+            text-decoration: none;
+        }
+
+        .humidity-wind {
+            position: relative;
+            font-size: 12px;
+            list-style: none;
+            padding: 5px 0;
+            opacity: 0.7;
+        }
+
+        .temp-main {
+            position: relative;
+            text-align: right;
+            display: inline-block;
+        }
+
+        .sunrise-sunset {
+            position: relative;
+            font-size: 10px;
+            list-style: none;
+            text-align: right;
+            opacity: 0.8;
+            padding: 5px 0;
+        }
+
+        .precipitation-description {
+            position: relative;
+            margin-left: 20px;
+        }
+
+        .precipitation-description::first-letter {
+            position: relative;
+            text-transform: capitalize;
+        }
+
+        .detailed-temp-wind {
+            position: relative;
+            margin-top: 30px;
+            color: #334;
+            font-weight: 400;
+            opacity: 0.9;
+            word-spacing: 1em;
+        }
+
+        .detailed-wind {
+            word-spacing: 2px;
+            position: relative;
+            margin: 13px 30px 0;
+            display: inline-block;
+            transition: all 200ms ease-in-out;
+        }
+
+        .detailed-wind:hover {
+            position: relative;
+            text-decoration: solid underline #fcc155 2px;
+        }
+
+        .forecast-icon {
+            position: relative;
+            display: block;
+            margin: 0 auto;
+            height: 46px;
+            width: 46px;
+        }
+
+        .weather-forecast .forecast-icon {
+            height: 38px;
+            width: 38px;
+        }
+
+        .wind-forecast {
+            position: relative;
+            margin: 10px 10px 0 0;
+            text-align: right;
+            white-space: nowrap;
+            font-size: 12px;
+            color: #1b1b1b;
+        }
+
+        .col-3 .form-label {
+            position: relative;
+            font-size: 13px;
+        }
+
+        .weather-forecast {
+            margin: 10px 10px 10px;
+        }
+
+        .weather-forecast,
+        .seven-days-forecast {
+            position: relative;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .weather-forecast h6,
+        .seven-days-forecast h6 {
+            font-size: 10px;
+            margin-top: 10px;
+            margin-bottom: 0;
+            text-align: center;
+        }
+
+        .weather-forecast-temperature,
+        .dayly-forecast-temperature {
+            margin-bottom: 5px;
+            text-align: center;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+
+        .weather-forecast-temperature {
+            font-size: 10px;
+        }
+
+        .three-hour-forecast-col,
+        .dayly-forecast {
+            transition: all 400ms ease-in-out;
+            border: none;
+            border-radius: 10px;
+            padding: 5px -5px;
+        }
+
+        .three-hour-forecast-col:hover,
+        .dayly-forecast:hover {
+            background-image: linear-gradient(to top, #accbee 0%, #e7f0fd 100%);
+            border-radius: 10px;
+            padding: 5px -5px;
+        }
+
+        .border-2 {
+            position: relative;
+            border-radius: 5px;
+            margin: 20px 10px 5px;
+            padding: 7px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="weather-app-wrapper">
+            <div class="weather-app">
+                <form id="city-form">
+                    <div class="row">
+                        <div class="col-4 enter-a-city">
+                            <input type="text" class="form-control" placeholder="Enter a city" autofocus="on"
+                                autocomplete="off" id="city-input" />
+                        </div>
+                        <div class="col-1">
+                            <input type="submit" class="search" value="Search" id="search" />
+                        </div>
+                        <div class="col-7">
+                            <h4 class="city-and-country" id="city-and-country"></h4>
+                        </div>
+                    </div>
+                </form>
+                <h5 class="date" id="date"></h5>
+                <h6 class="time" id="time">
+                    </h5>
+                    <div class="row">
+                        <div class="col-2">
+                            <img src="" class="weather-icon-main" id="icon-main" alt="weather-icon-main">
+                        </div>
+                        <div class="col-1">
+                            <h1 class="temp-main" id="temp-main"></h1>
+                        </div>
+                        <div class="col-2">
+                            <span class="degree-views">
+                                <a href="#" class="celsius active" id=celsius-link>°C</a>
+                                |<a href="#" class="fahrenheit" id=fahrenheit-link>°F</a>
+                            </span>
+                        </div>
+                        <div class="col-4">
+                            <ul class="humidity-wind">
+                                <li> <span id=humidity></span>%</li>
+                                <li> <span id=wind></span>km/h</li>
+                            </ul>
+                        </div>
+                        <div class="col-3">
+                            <ul class="sunrise-sunset">
+                                <li>🌅 Sunrise <small id=sunrise></small></li>
+                                <li>🌄 Sunset <small id=sunset></small></li>
+                        </div>
+                        <div class="col-12">
+                            <h6 class="precipitation-description" id="precipitation-description"></h6>
+                        </div>
+                    </div>
+
+                    <small>
+                        <div class="row weather-forecast" id="forecast"></div>
+                    </small>
+                    <div class="border border-2">
+                        <div class="row seven-days-forecast" id="seven-days-forecast"></div>
+                    </div>
+            </div>
+        </div>
+        <footer>
+            <small>
+                <br />
+                Sponsor: Kai Engel
+                <br />
+
+                Made by: Alina Engel
+            </small>
+        </footer>
+    </div>
+    </div>
+    <script>
+        function submitCityInput(event) {
+            event.preventDefault();
+            let cityInput = document.querySelector("#city-input").value;
+            cityInput = cityInput.toLowerCase().trim();
+            //removing spaces and unwanted char from the string except letters
+            cityInput = cityInput.replaceAll("/[^ w]+/", "");
+            let h4 = document.querySelector("h4");
+            if (cityInput) {
+                h4.innerHTML = `${cityInput}`;
+            }
+            searchCity(cityInput);
+        }
+        function searchCity(city) {
+            let apiKey = "45806222ea153dc5cbd693b6ea7eebaf";
+            let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+            axios.get(apiUrl).then(updateWeatherConditions);
+
+            apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
+            axios.get(apiUrl).then(displayForecast);
+
+            apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+            axios.get(apiUrl).then(getSearchedCoordinates);
+            apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}`;
+            axios.get(apiUrl).then(displayWindDetails);
+        }
+
+        function updateWeatherConditions(response) {
+            console.log(response.data);
+            document.querySelector("#city-and-country").innerHTML = response.data.name;
+            celsiusTemperature = response.data.main.temp;
+            document.querySelector("#temp-main").innerHTML = Math.round(
+                celsiusTemperature
+            );
+            document.querySelector("#date").innerHTML = formatDate(
+                response.data.dt * 1000
+            );
+            document.querySelector("#time").innerHTML = formatLocalTime();
+            document.querySelector("#precipitation-description").innerHTML =
+                response.data.weather[0].description;
+            document.querySelector(
+                "#humidity"
+            ).innerHTML = `Humidity: ${response.data.main.humidity} `;
+            document.querySelector("#wind").innerHTML = `Wind: ${Math.round(
+                response.data.wind.speed
+            )} `;
+            let iconMain = document.querySelector("#icon-main");
+            iconMain.setAttribute(
+                "src",
+                `https://openweathermap.org/img/wn/${response.data.weather[0].icon}@2x.png`
+            );
+            iconMain.setAttribute("alt", response.data.weather[0].description);
+        }
+
+        function displayForecast(response) {
+            let threeHourforecastView = document.querySelector("#forecast");
+            threeHourforecastView.innerHTML = null;
+            let forecast = null;
+
+            for (let index = 0; index < 8; index++) {
+                forecast = response.data.list[index];
+                threeHourforecastView.innerHTML += `
+    <div class="col three-hour-forecast-col">
+      <h6>
+        ${formatTime(forecast.dt * 1000)}
+      </h6>
+      <img
+        src="https://openweathermap.org/img/wn/${forecast.weather[0].icon
+                    }@2x.png" class="forecast-icon" 
+      />
+      <div class="weather-forecast-temperature">
+        <strong>
+          ${Math.round(forecast.main.temp_max)}°
+        </strong>
+        ${Math.round(forecast.main.temp_min)}°
+      </div>
+    </div>
+  `;
+            }
+        }
+        function getSearchedCoordinates(response) {
+            let longitude = response.data.coord.lon;
+            let latitude = response.data.coord.lat;
+            let apiKey = "45806222ea153dc5cbd693b6ea7eebaf";
+            let apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=current,hourly,minutely,hourly,alerts&appid=${apiKey}&units=metric`;
+            axios.get(apiUrl).then(displaySevenDayForecast);
+        }
+        function displaySevenDayForecast(response) {
+            document.querySelector("#sunrise").innerHTML = formatTimeSunriseSunset(
+                response.data.daily[0].sunrise * 1000,
+                response.data.timezone
+            );
+            document.querySelector("#sunset").innerHTML = formatTimeSunriseSunset(
+                response.data.daily[0].sunset * 1000
+            );
+            let sevenDaysForecast = document.querySelector("#seven-days-forecast");
+            sevenDaysForecast.innerHTML = null;
+            let forecast = null;
+            for (let index = 1; index < 8; index++) {
+                forecast = response.data.daily[index];
+                sevenDaysForecast.innerHTML += `
+      <div class="col dayly-forecast">
+        <h6>
+        ${formatTime(forecast.dt * 1000)}
+      </h6>
+      <img
+        src="https://openweathermap.org/img/wn/${forecast.weather[0].icon
+                    }@2x.png" class="forecast-icon" 
+      />
+      <div class="dayly-forecast-temperature">
+        <strong>
+          ${Math.round(forecast.temp.max)}°
+        </strong>
+        ${Math.round(forecast.temp.min)}°
+      </div>
+    </div>
+  `;
+            }
+        }
+        function expandWindDetails(event) {
+            event.preventDefault();
+            let city = document.querySelector("#city-and-country").innerHTML;
+            let apiKey = "45806222ea153dc5cbd693b6ea7eebaf";
+            let apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}`;
+            if (windFlag === false) {
+                axios.get(apiUrl).then(displayWindDetails);
+                windFlag = true;
+            } else {
+                document.querySelector("#wind-forecast").innerHTML = null;
+                windFlag = false;
+            }
+        }
+        function displayWindDetails(response) {
+            windFlag = true;
+            let threeHourWindView = document.querySelector("#wind-forecast");
+            threeHourWindView.innerHTML = null;
+            let forecast = null;
+            for (let index = 0; index < 8; index++) {
+                forecast = response.data.list[index];
+                threeHourWindView.innerHTML += `
+      <div class="col three-hour-forecast-wind">
+        <em>
+          ${Math.round(forecast.wind.speed * 3.6)}km/h
+        </em>
+      </div>
+  `;
+            }
+        }
+        let celsiusTemperature = null;
+        let searchForm = document.querySelector("#city-form");
+        searchForm.addEventListener("submit", submitCityInput);
+        searchCity(`Schaffhausen`);
+
+        function formatDate(timestamp) {
+            let date = new Date(timestamp);
+
+            let weekdays = [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+            ];
+            let weekday = weekdays[date.getDay()];
+            let months = [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+            ];
+            let month = months[date.getMonth()];
+            let dateOfMonth = date.getDate();
+            return `${weekday}, ${month} ${dateOfMonth}`;
+        }
+
+        function formatTime(timestamp) {
+            let date = new Date(timestamp);
+            let hours = date.getHours();
+            let minutes = date.getMinutes();
+            if (hours < 10) {
+                hours = `0${hours}`;
+            }
+            if (minutes < 10) {
+                minutes = `0${minutes}`;
+            }
+            return `${hours}:${minutes}`;
+        }
+        function formatLocalTime() {
+            let now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            if (hours < 10) {
+                hours = `0${hours}`;
+            }
+            if (minutes < 10) {
+                minutes = `0${minutes}`;
+            }
+            return `${hours}:${minutes}`;
+        }
+
+        function formatTimeSunriseSunset(timestamp, timezone) {
+            let options = {
+                timeZone: timezone,
+                hour: "numeric",
+                minute: "numeric",
+            },
+                formatter = new Intl.DateTimeFormat([], options);
+
+            return formatter.format(new Date(timestamp));
+        }
+        function displayCelsiusTemperature(event) {
+            event.preventDefault();
+            let temp = document.querySelector("#temp-main");
+            celsiusLink.classList.add("active");
+            fahrenheitLink.classList.remove("active");
+            temp.innerHTML = Math.round(celsiusTemperature);
+            let city = document.querySelector("#city-and-country").innerHTML;
+            let apiKey = "45806222ea153dc5cbd693b6ea7eebaf";
+            let apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
+            axios.get(apiUrl).then(changeForecastTempToCelsius);
+            axios.get(apiUrl).then(displayForecast);
+        }
+        function changeForecastTempToCelsius(response) {
+            let longitude = response.data.city.coord.lon;
+            let latitude = response.data.city.coord.lat;
+            let apiKey = "45806222ea153dc5cbd693b6ea7eebaf";
+            let apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=current,hourly,minutely,hourly,alerts&appid=${apiKey}&units=metric`;
+            axios.get(apiUrl).then(displaySevenDayForecast);
+        }
+        function displayFahrenheitTemperature(event) {
+            event.preventDefault();
+            let temp = document.querySelector("#temp-main");
+            celsiusLink.classList.remove("active");
+            fahrenheitLink.classList.add("active");
+            temp.innerHTML = Math.round((celsiusTemperature * 9) / 5 + 32);
+            let city = document.querySelector("#city-and-country").innerHTML;
+            let apiKey = "45806222ea153dc5cbd693b6ea7eebaf";
+            let apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=imperial`;
+            axios.get(apiUrl).then(changeForecastTempToFahrenheit);
+            axios.get(apiUrl).then(displayForecast);
+        }
+        function changeForecastTempToFahrenheit(response) {
+            let latitude = response.data.city.coord.lat;
+            let longitude = response.data.city.coord.lon;
+            let apiKey = "45806222ea153dc5cbd693b6ea7eebaf";
+            let apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=current,hourly,minutely,hourly,alerts&appid=${apiKey}&units=imperial`;
+            axios.get(apiUrl).then(displayForecastTempToFahrenheit);
+        }
+        function displayForecastTempToFahrenheit(response) {
+            let sevenDaysForecast = document.querySelector("#seven-days-forecast");
+            sevenDaysForecast.innerHTML = null;
+            let forecast = null;
+            for (let index = 1; index < 8; index++) {
+                forecast = response.data.daily[index];
+                sevenDaysForecast.innerHTML += `
+      <div class="col dayly-forecast">
+        <h6>
+        ${formatTime(forecast.dt * 1000)}
+      </h6>
+      <img
+        src="https://openweathermap.org/img/wn/${forecast.weather[0].icon
+                    }@2x.png" class="forecast-icon" 
+      />
+      <div class="dayly-forecast-temperature">
+        <strong>
+          ${Math.round(forecast.temp.max)}°
+        </strong>
+        ${Math.round(forecast.temp.min)}°
+      </div>
+    </div>
+  `;
+            }
+        }
+        let windFlag = false;
+        let fahrenheitLink = document.querySelector("#fahrenheit-link");
+        let celsiusLink = document.querySelector("#celsius-link");
+        fahrenheitLink.addEventListener("click", displayFahrenheitTemperature);
+        celsiusLink.addEventListener("click", displayCelsiusTemperature);
+        let windLink = document.querySelector("#detailed-wind");
+        windLink.addEventListener("click", expandWindDetails);
+    </script>
+</body>
+
+</html>
